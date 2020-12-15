@@ -1,0 +1,21 @@
+{
+  "cdr_sms": {
+    "config": {
+      "ftp.server.host": "10.201.0.22",
+      "ftp.server.user": "vtt_fraud",
+      "ftp.server.password": "t1S!o#NA8{(r",
+      "ftp.server.folder.log": "/SMSC",
+      "ftp.server.list.folder.log": ["/SMSC", "/SMSC_02", "/SMSC_YG02"],
+      "ftp.delete.file": false,
+      "hdfs.datalake.zookeeper.list": "mt01.up.vn:2181,mt02.up.vn:2181,mt03.up.vn:2181",
+      "hdfs.datalake.root.path": "hdfs://hdp_userprofile",
+      "hdfs.datalake.base.folder": "/data-product/raw/encrypted_atsp_cdr_myanmar",
+      "hdfs.datalake.prefix.name.log": "cdr_sms",
+      "hdfs.datalake.file.size": 1000000,
+      "thread.time.sleep": 1800,
+      "ftp.connect.timeout": 120000,
+      "file.local.dir": "/data01",
+      "file.batch.size": 50
+    }
+  }
+}

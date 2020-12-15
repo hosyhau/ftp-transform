@@ -1,0 +1,11 @@
+{
+  "production": {
+    "config": {
+      "encryption.keyString": "WhileYourLibsAreStillRed",
+      "encryption.ivString": "c8IKDNGsbioSCfxW",
+      "hdfs.user": "userprofile",
+      "hdfs.hosts": "mt01.up.vn:2181,mt02.up.vn:2181,mt03.up.vn:2181",
+      "hdfs.defaultNN": "hdfs://hdp_userprofile"
+    }
+  }
+}
