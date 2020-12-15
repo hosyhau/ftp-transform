@@ -5,6 +5,7 @@ import com.viettel.vtcc.dm.model.TransformDataInfo;
 import com.viettel.vtcc.dm.msisdn_encryption.EncryptionAbstract;
 import com.viettel.vtcc.dm.utils.LogUtils;
 import com.viettel.vtcc.dm.utils.RegexUtil;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.net.PrintCommandListener;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -31,7 +32,7 @@ public class FTPService {
         ftpClient = new FTPClient();
         ftpClient.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
         if (timeout <= 0){
-            timeout = 120000;
+            timeout = 300000;
         }
         int reply;
         try {
@@ -46,7 +47,9 @@ public class FTPService {
                 ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
                 ftpClient.enterLocalPassiveMode();
                 ftpClient.setDataTimeout(timeout);
-                ftpClient.setConnectTimeout(2*timeout);
+                ftpClient.setConnectTimeout(timeout);
+                ftpClient.setDefaultTimeout(timeout);
+                ftpClient.setSoTimeout(timeout);
                 logger.info("Connected successful to ftp server {}", host);
             } else {
                 logger.warn("Connected failed to ftp server {}", host);

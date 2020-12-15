@@ -15,7 +15,9 @@
       "thread.time.sleep": 1800,
       "ftp.connect.timeout": 120000,
       "file.local.dir": "/data01",
-      "file.batch.size": 50
+      "file.batch.size": 50,
+      "hdfs.number.thread": 2,
+      "file.blocking.queue.size": 20000
     }
   }
 }

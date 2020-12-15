@@ -2,20 +2,20 @@ package com.viettel.vtcc.dm.model;
 
 public class FileDirectionInfo {
 
-    private String baseFolder;
     private String localFilePath;
+    private String hdfsFilePath;
 
-    public FileDirectionInfo(String baseFolder, String localFilePath) {
-        this.baseFolder = baseFolder;
+    public FileDirectionInfo(String localFilePath, String hdfsFilePath) {
         this.localFilePath = localFilePath;
+        this.hdfsFilePath = hdfsFilePath;
     }
 
-    public String getBaseFolder() {
-        return baseFolder;
+    public String getHdfsFilePath() {
+        return hdfsFilePath;
     }
 
-    public void setBaseFolder(String baseFolder) {
-        this.baseFolder = baseFolder;
+    public void setHdfsFilePath(String hdfsFilePath) {
+        this.hdfsFilePath = hdfsFilePath;
     }
 
     public String getLocalFilePath() {

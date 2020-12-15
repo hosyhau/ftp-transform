@@ -37,28 +37,30 @@ public class CdrMyanmarMain {
 
         List<TransformDataInfo> transformDataInfoList = configUtil.getTransformDataInfoList();
         List<Thread> threads = new ArrayList<>();
-
-        int index = 0;
-        TransformDataInfo svInfo = transformDataInfoList.get(index);
-        String baseHDFSFolder = svInfo.getBaseFolder();
+        TransformDataInfo svInfo = transformDataInfoList.get(0);
+        BlockingQueue<FileDirectionInfo> fileDirectionInfos = new ArrayBlockingQueue<>(svInfo.getNumberOfFileQueueSize());
+        String baseHDFSFolder = svInfo.getBaseHDFSFolder();
         List<String> ftpFolderLogs = svInfo.getRemoteListFolder();
         final Logger logger = LoggerFactory.getLogger(svInfo.getJob());
 
         for (String folder : ftpFolderLogs) {
-            EncryptionAbstract encryption = EncryptionFactory.factory(svInfo.getJob());
-            encryption.setUp(key, iv);
             TransformDataInfo info = getInfo(svInfo);
             info.setRemoteFolder(folder);
-            info.setBaseFolder(baseHDFSFolder + folder);
+            info.setBaseHDFSFolder(baseHDFSFolder + folder);
             String localDir = info.getLocalDir();
             info.setLocalDir(Paths.get(localDir, folder).toString());
-            FTPDownloadService downloadService = new FTPDownloadService(info, logger);
-            HDFSFileService HDFSFileService = new HDFSFileService(logger, encryption, info);
+            FTPDownloadService downloadService = new FTPDownloadService(info, logger, fileDirectionInfos);
             String threadName = "FTP_CDR" + info.getRemoteFolder().replaceAll("\\/", "_");
-            String threadHDFS = "HDFS_CDR" + info.getRemoteFolder().replaceAll("\\/", "_");
             threads.add(new Thread(downloadService, threadName));
-            threads.add(new Thread(HDFSFileService, threadHDFS));
         }
+        for (int i =0; i < svInfo.getNumberOfThread(); i++){
+            EncryptionAbstract encryption = EncryptionFactory.factory(svInfo.getJob());
+            encryption.setUp(key, iv);
+            String threadName = "HDFS_CDR" + i;
+            HDFSFileService hdfsFileService = new HDFSFileService(logger, encryption, fileDirectionInfos);
+            threads.add(new Thread(hdfsFileService, threadName));
+        }
+
         for (Thread thread : threads) {
             thread.start();
         }
@@ -66,7 +68,7 @@ public class CdrMyanmarMain {
 
     private static TransformDataInfo getInfo(TransformDataInfo info) {
         TransformDataInfo newInfo = new TransformDataInfo();
-        newInfo.setBaseFolder(info.getBaseFolder());
+        newInfo.setBaseHDFSFolder(info.getBaseHDFSFolder());
         newInfo.setRemoteFolder(info.getRemoteFolder());
         newInfo.setRemoteListFolder(info.getRemoteListFolder());
         newInfo.setDeletedFile(info.isDeletedFile());
@@ -81,6 +83,8 @@ public class CdrMyanmarMain {
         newInfo.setFtpDataTimeout(info.getFtpDataTimeout());
         newInfo.setLocalDir(info.getLocalDir());
         newInfo.setNumberFile(info.getNumberFile());
+        newInfo.setNumberOfThread(info.getNumberOfThread());
+        newInfo.setNumberOfFileQueueSize(info.getNumberOfFileQueueSize());
         return newInfo;
     }
 }

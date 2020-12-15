@@ -1,6 +1,7 @@
 package com.viettel.vtcc.dm.service;
 
 import com.viettel.vtcc.dm.function.HDFSService;
+import com.viettel.vtcc.dm.model.FileDirectionInfo;
 import com.viettel.vtcc.dm.model.TransformDataInfo;
 import com.viettel.vtcc.dm.msisdn_encryption.EncryptionAbstract;
 import com.viettel.vtcc.dm.utils.LogUtils;
@@ -14,20 +15,21 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
 public class HDFSFileService extends Thread{
 
     private final Logger logger;
     private final EncryptionAbstract encryption;
-    private final TransformDataInfo transformDataInfo;
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+    private final BlockingQueue<FileDirectionInfo> fileDirectionInfos;
     private volatile boolean isRun = true;
 
-    public HDFSFileService(Logger logger, EncryptionAbstract encryption, TransformDataInfo transformDataInfo) {
+    public HDFSFileService(Logger logger, EncryptionAbstract encryption, BlockingQueue<FileDirectionInfo> fileDirectionInfos) {
         this.logger = logger;
         this.encryption = encryption;
-        this.transformDataInfo = transformDataInfo;
+        this.fileDirectionInfos = fileDirectionInfos;
     }
 
     public List<String> getListFilesLocal(String localPath){
@@ -65,37 +67,31 @@ public class HDFSFileService extends Thread{
         return dataList;
     }
 
-
     public void run(){
         while (isRun){
             HDFSService hdfsService = null;
             try{
                 hdfsService = new HDFSService(logger);
-                List<String> listFiles = getListFilesLocal(transformDataInfo.getLocalDir());
-                long timestamp = System.currentTimeMillis();
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(timestamp);
-                if (calendar.get(Calendar.HOUR_OF_DAY) == 0) {
-                    timestamp = timestamp - 60 * 60 * 1000;
-                }
-                String patternTime = sdf.format(timestamp);
-                int index = 0;
-                if (listFiles.size() > 0){
-                    for (String filePath : listFiles){
-                        index++;
-                        logger.info("Index push HDFS = {}, Total = {}", index, listFiles.size());
-                        List<String> dataFile = readData(filePath);
-                        pushDataToHDFS(hdfsService, dataFile, filePath, patternTime);
+                synchronized (fileDirectionInfos){
+                    FileDirectionInfo info = fileDirectionInfos.take();
+                    List<String> dataFile = readData(info.getLocalFilePath());
+                    if (dataFile.size() > 0){
+                        boolean write2File = hdfsService.write2File(info.getHdfsFilePath(), dataFile);
+                        if (write2File){
+                            deleteFileLocal(info.getLocalFilePath());
+                        } else{
+                            fileDirectionInfos.put(info);
+                        }
+                    }else {
+                        logger.info("There is no data on file local = {}", info.getLocalFilePath());
                     }
-                } else {
-                    logger.info("There is no file to process");
                 }
             }catch (Exception e){
                 LogUtils.LOGGER.error("Error with msg = {}", e.getMessage(), e);
             }
             try{
-                logger.info("Go to sleep 90000");
-                Thread.sleep(90000);
+                logger.info("Go to sleep 60000");
+                Thread.sleep(60000);
             }catch (InterruptedException e){
                 LogUtils.LOGGER.error("Error sleep with msg = {}", e.getMessage(), e);
             }
@@ -107,20 +103,6 @@ public class HDFSFileService extends Thread{
         boolean deleted = file.delete();
         if (deleted){
             logger.info("Delete file {} local successfully!", filePath);
-        }
-    }
-
-    void pushDataToHDFS(HDFSService hdfsService, List<String> data, String pathFile, String patternTime) throws IOException {
-        if (data.size() > 0) {
-            String[] splits = pathFile.split("\\/");
-            String fileName = splits[splits.length - 1];
-            String baseFolder = Paths.get(transformDataInfo.getBaseFolder(), patternTime).toString();
-            if (hdfsService.write2File(baseFolder, fileName, data)) {
-                logger.info("Write file {} to folder {} successfully!!!", pathFile, baseFolder);
-                deleteFileLocal(pathFile);
-            }
-        } else {
-            logger.info("There is no data on path {}", pathFile);
         }
     }
 

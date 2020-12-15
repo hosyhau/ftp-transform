@@ -36,6 +36,8 @@ public class ConfigUtil {
     public static final String FTP_SERVER_CONNECT_TIMEOUT = "ftp.connect.timeout";
     public static final String LOCAL_DIR = "file.local.dir";
     public static final String BATCH_SIZE_FILE = "file.batch.size";
+    public static final String NUMBER_THREAD = "hdfs.number.thread";
+    public static final String FILE_BLOCKING_QUEUE_SIZE = "file.blocking.queue.size";
 
     private List<TransformDataInfo> transformDataInfoList = new ArrayList();
 
@@ -88,7 +90,7 @@ public class ConfigUtil {
             svInfo.setPassword(jsonObject.get(FTP_SERVER_PASSWORD).getAsString());
         }
         if (jsonObject.get(HDFS_DATALAKE_BASE_FOLDER) != null) {
-            svInfo.setBaseFolder(jsonObject.get(HDFS_DATALAKE_BASE_FOLDER).getAsString());
+            svInfo.setBaseHDFSFolder(jsonObject.get(HDFS_DATALAKE_BASE_FOLDER).getAsString());
         }
         if (jsonObject.get(HDFS_DATALAKE_PREFIX_NAME_LOG) != null) {
             svInfo.setPrexFileName(jsonObject.get(HDFS_DATALAKE_PREFIX_NAME_LOG).getAsString());
@@ -116,6 +118,14 @@ public class ConfigUtil {
 
         if (jsonObject.get(BATCH_SIZE_FILE) != null){
             svInfo.setNumberFile(jsonObject.get(BATCH_SIZE_FILE).getAsInt());
+        }
+
+        if (jsonObject.get(NUMBER_THREAD) != null){
+            svInfo.setNumberOfThread(jsonObject.get(NUMBER_THREAD).getAsInt());
+        }
+
+        if (jsonObject.get(FILE_BLOCKING_QUEUE_SIZE) != null){
+            svInfo.setNumberOfFileQueueSize(jsonObject.get(FILE_BLOCKING_QUEUE_SIZE).getAsInt());
         }
 
         if(jsonObject.getAsJsonArray(FTP_SERVER_LIST_FOLDER_LOG) != null){

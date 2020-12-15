@@ -11,38 +11,40 @@ public class TransformDataInfo {
     private String user;
     private String password;
     private String rootPath;
-    private String baseFolder;
+    private String baseHDFSFolder;
     private String prexFileName;
     private String remoteFolder;
     private boolean isDeletedFile=false;
     private List<String> remoteListFolder;
     private String localDir;
-    private int ftpDataTimeout = 120000;
+    private int ftpDataTimeout = 300000;
+    private int numberOfFileQueueSize = 20000;
+    private int numberOfThread = 2;
 
     private int size;
     private long timeSleep;
     private int numberFile = 50;
 
-    public TransformDataInfo(String job, String host, String user, String password, String rootPath, String baseFolder, String prexFileName, String remoteFolder, int size, long timeSleep) {
+    public TransformDataInfo(String job, String host, String user, String password, String rootPath, String baseHDFSFolder, String prexFileName, String remoteFolder, int size, long timeSleep) {
         this.job = job;
         this.host = host;
         this.user = user;
         this.password = password;
         this.rootPath = rootPath;
-        this.baseFolder = baseFolder;
+        this.baseHDFSFolder = baseHDFSFolder;
         this.prexFileName = prexFileName;
         this.remoteFolder = remoteFolder;
         this.size = size;
         this.timeSleep = timeSleep;
     }
 
-    public TransformDataInfo(String job, String host, String user, String password, String rootPath, String baseFolder, String prexFileName, String remoteFolder, int size, long timeSleep, boolean isDeletedFile) {
+    public TransformDataInfo(String job, String host, String user, String password, String rootPath, String baseHDFSFolder, String prexFileName, String remoteFolder, int size, long timeSleep, boolean isDeletedFile) {
         this.job = job;
         this.host = host;
         this.user = user;
         this.password = password;
         this.rootPath = rootPath;
-        this.baseFolder = baseFolder;
+        this.baseHDFSFolder = baseHDFSFolder;
         this.prexFileName = prexFileName;
         this.remoteFolder = remoteFolder;
         this.size = size;
@@ -109,12 +111,12 @@ public class TransformDataInfo {
         this.rootPath = rootPath;
     }
 
-    public String getBaseFolder() {
-        return baseFolder;
+    public String getBaseHDFSFolder() {
+        return baseHDFSFolder;
     }
 
-    public void setBaseFolder(String baseFolder) {
-        this.baseFolder = baseFolder;
+    public void setBaseHDFSFolder(String baseHDFSFolder) {
+        this.baseHDFSFolder = baseHDFSFolder;
     }
 
     public String getRemoteFolder() {
@@ -173,6 +175,22 @@ public class TransformDataInfo {
         this.ftpDataTimeout = ftpDataTimeout;
     }
 
+    public int getNumberOfFileQueueSize() {
+        return numberOfFileQueueSize;
+    }
+
+    public void setNumberOfFileQueueSize(int numberOfFileQueueSize) {
+        this.numberOfFileQueueSize = numberOfFileQueueSize;
+    }
+
+    public int getNumberOfThread() {
+        return numberOfThread;
+    }
+
+    public void setNumberOfThread(int numberOfThread) {
+        this.numberOfThread = numberOfThread;
+    }
+
     @Override
     public String toString() {
         return "TransformDataInfo{" +
@@ -181,7 +199,7 @@ public class TransformDataInfo {
                 ", user='" + user + '\'' +
                 ", password='" + password + '\'' +
                 ", rootPath='" + rootPath + '\'' +
-                ", baseFolder='" + baseFolder + '\'' +
+                ", baseFolder='" + baseHDFSFolder + '\'' +
                 ", prexFileName='" + prexFileName + '\'' +
                 ", remoteFolder='" + remoteFolder + '\'' +
                 ", isDeletedFile=" + isDeletedFile +

@@ -65,10 +65,33 @@ public class HDFSService {
         return null;
     }
 
-    public boolean write2File(String baseFolder, String fileName, List<String> data) throws IOException {
+//    public boolean write2File(String baseFolder, String fileName, List<String> data) throws IOException {
+//
+//        String filePath = Paths.get(baseFolder, fileName).toString();
+//        Path path = new Path(filePath);
+//        try {
+//            if (fs.exists(path)) {
+//                fs.delete(path, true);
+//                logger.info("Delete old file HDFS = {}", path);
+//            }
+//            logger.info("Push data into path: {}, Size = {}", path, data.size());
+//            FSDataOutputStream fos = fs.create(path);
+//            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(fos));
+//            for (String line : data) {
+//                bufferedWriter.write(line);
+//                bufferedWriter.write("\n");
+//            }
+//            bufferedWriter.close();
+//        } catch (IOException e) {
+//            LogUtils.LOGGER.error("HDFS write2File error" + e.getMessage(), e);
+//            throw e;
+//        }
+//        return true;
+//    }
 
-        String filePath = Paths.get(baseFolder, fileName).toString();
-        Path path = new Path(filePath);
+    public boolean write2File(String hdfsFile, List<String> data) throws IOException {
+
+        Path path = new Path(hdfsFile);
         try {
             if (fs.exists(path)) {
                 fs.delete(path, true);
@@ -83,7 +106,7 @@ public class HDFSService {
             }
             bufferedWriter.close();
         } catch (IOException e) {
-            LogUtils.LOGGER.error("HDFS write2File error" + e.getMessage(), e);
+            LogUtils.LOGGER.error("HDFS write2File error with hdfs file path = {}, msg = {}", hdfsFile, e.getMessage(), e);
             throw e;
         }
         return true;
